@@ -3,25 +3,135 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #1a2838;
+  --foreground: #f0e4c8;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    box-sizing: border-box;
   }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: #1a2838;
+    background-image: radial-gradient(ellipse at 50% 20%, #243447 0%, #1a2838 50%, #0d1822 100%);
+    background-attachment: fixed;
+    color: #f0e4c8;
+    min-height: 100vh;
+  }
+
+  /* Scrollbar maritime */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #111e2d; }
+  ::-webkit-scrollbar-thumb { background: #E8A838; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #f0c060; }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .panel {
+    @apply bg-navy-light/60 backdrop-blur-md border border-white/10 rounded-panel shadow-panel;
+  }
+
+  .panel-gold {
+    @apply panel border-gold/30;
+  }
+
+  .title-cinzel {
+    @apply font-cinzel text-gold tracking-widest;
+  }
+
+  .label-pixel {
+    @apply font-pixel text-[9px] tracking-wider leading-relaxed;
+  }
+
+  .resource-bar {
+    @apply h-2 rounded-full overflow-hidden bg-white/10;
+  }
+
+  .resource-bar-fill {
+    @apply h-full rounded-full transition-all duration-700;
+  }
+
+  .island-node {
+    @apply absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all duration-300;
+  }
+
+  .xp-bar {
+    @apply h-1.5 rounded-full bg-white/10 overflow-hidden;
+  }
+
+  .text-glow-gold {
+    text-shadow: 0 0 12px rgba(232, 168, 56, 0.6);
+  }
+
+  .badge {
+    @apply font-pixel text-[9px] tracking-wider px-2 py-1 rounded-md;
+  }
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  .text-shadow-gold {
+    text-shadow: 0 0 20px rgba(232, 168, 56, 0.5);
   }
+}
+
+.sea-lines {
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 40px,
+    rgba(126, 200, 227, 0.03) 40px,
+    rgba(126, 200, 227, 0.03) 41px
+  );
+}
+
+/* ─── Responsive dashboard grid ─────────────────────────────────────────────
+   On mobile: single column stack.
+   On desktop (≥1024px): map (1fr) + sidebar (420px).
+─────────────────────────────────────────────────────────────────────────── */
+.dashboard-grid {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr 420px;
+  }
+}
+
+/* ─── Progress bar entrance animation ───────────────────────────────────────
+   Apply .bar-animate on the fill div — runs once on mount.
+─────────────────────────────────────────────────────────────────────────── */
+.bar-animate {
+  animation: fillBar 1s ease-out forwards;
+  transform-origin: left;
+}
+
+@keyframes fillBar {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* ─── Hotspot hover pulse (subtle ring expand) ───────────────────────────── */
+.hotspot-hover {
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+.hotspot-hover:hover {
+  box-shadow: 0 0 0 6px rgba(232, 168, 56, 0.15), 0 0 20px rgba(232, 168, 56, 0.4);
+  transform: scale(1.08);
+}
+
+/* ─── Countdown hour-change flash ───────────────────────────────────────── */
+@keyframes hourFlash {
+  0%   { color: #ffffff; text-shadow: 0 0 24px rgba(232,168,56,0.9), 0 0 48px rgba(232,168,56,0.5); }
+  100% { color: #E8A838; text-shadow: none; }
+}
+.hour-flash {
+  animation: hourFlash 0.7s ease-out forwards;
 }
