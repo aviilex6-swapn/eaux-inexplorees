@@ -1,12 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { Membre } from "@/lib/types";
 
-interface ShipPanelProps {
-  crew: Membre[];
-}
-
-export function ShipPanel(_props: ShipPanelProps) {
+export function ShipPanel() {
   return (
     <div
       className="rounded-[10px] border p-4 backdrop-blur-md"

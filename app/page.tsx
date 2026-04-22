@@ -1,6 +1,5 @@
 import {
   getIslands,
-  getCrew,
   getModules,
   getScoresCumules,
   getEtatVoyage,
@@ -25,11 +24,10 @@ export const revalidate = 60;
 export default async function HomePage() {
   // ── Fetch all data in parallel ──────────────────────────────────────────
   const [
-    islands, crew, modulesResult, scores, etat,
+    islands, modulesResult, scores, etat,
     quetesResult, eventActuel, journalResult,
   ] = await Promise.all([
     getIslands(),
-    getCrew(),
     getModules(),
     getScoresCumules(),
     getEtatVoyage(),
@@ -123,7 +121,7 @@ export default async function HomePage() {
           className="grid grid-cols-1 md:grid-cols-2 gap-5"
         >
           {/* ─ Left: Ship + Crew ─ */}
-          <ShipPanel crew={crew} />
+          <ShipPanel />
 
           {/* ─ Right: Events + Quests + Journal stacked ─ */}
           <div className="flex flex-col gap-4">
