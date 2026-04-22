@@ -120,10 +120,15 @@ export default async function HomePage() {
           style={{ gridColumn: "1 / -1" }}
           className="grid grid-cols-1 md:grid-cols-2 gap-5"
         >
-          {/* ─ Left: Ship + Crew ─ */}
-          <ShipPanel />
+          {/* ─ Left: Ship + Journal ─ */}
+          <div className="flex flex-col gap-4">
+            <ShipPanel />
+            {showJournal && (
+              <JournalPanel entries={journal} />
+            )}
+          </div>
 
-          {/* ─ Right: Events + Quests + Journal stacked ─ */}
+          {/* ─ Right: Events + Quests stacked ─ */}
           <div className="flex flex-col gap-4">
             {showEvenements && (
               <EventPanel event={eventActuel} />
@@ -134,10 +139,6 @@ export default async function HomePage() {
                 quetes={quetesIle.length > 0 ? quetesIle : quetes}
                 nomIle={etat.ile_en_cours_nom}
               />
-            )}
-
-            {showJournal && (
-              <JournalPanel entries={journal} />
             )}
 
             {/* Fallback if all modules hidden */}
