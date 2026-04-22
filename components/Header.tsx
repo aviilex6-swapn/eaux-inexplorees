@@ -57,6 +57,13 @@ export function Header({ semaine, dateMaree, nomIleEnCours }: HeaderProps) {
         >
           Équipage
         </Link>
+        <Link
+          href="/semaine"
+          className="text-[9px] uppercase tracking-[1.5px] text-cream-muted/60 hover:text-gold transition-colors border border-white/10 hover:border-gold/30 px-3 py-1.5 rounded-lg"
+          style={{ fontFamily: "'Press Start 2P', monospace" }}
+        >
+          Semaine
+        </Link>
         <a
           href="/debug"
           className="text-[9px] uppercase tracking-[1.5px] text-cream-muted/40 hover:text-cream-muted/70 transition-colors px-2 py-1"

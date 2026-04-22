@@ -6,8 +6,7 @@ import {
   getQuetes,
   getEvenementActuel,
   getJournal,
-  getKpis,
-  getScoresHebdo,
+
 } from "@/lib/sheet";
 
 import { Header }       from "@/components/Header";
@@ -20,7 +19,6 @@ import { ShipPanel }    from "@/components/ShipPanel";
 import { EventPanel }   from "@/components/EventPanel";
 import { QuestPanel }   from "@/components/QuestPanel";
 import { JournalPanel } from "@/components/JournalPanel";
-import { WeekPanel }   from "@/components/WeekPanel";
 
 export const revalidate = 60;
 
@@ -29,7 +27,6 @@ export default async function HomePage() {
   const [
     islands, modulesResult, scores, etat,
     quetesResult, eventActuel, journalResult,
-    kpisResult, scoresHebdoResult,
   ] = await Promise.all([
     getIslands(),
     getModules(),
@@ -38,15 +35,11 @@ export default async function HomePage() {
     getQuetes(),
     getEvenementActuel(),
     getJournal(),
-    getKpis(),
-    getScoresHebdo(),
   ]);
 
-  const modules     = modulesResult.data;
-  const quetes      = quetesResult.data;
-  const journal     = journalResult.data;
-  const kpis        = kpisResult.data;
-  const scoresHebdo = scoresHebdoResult.data;
+  const modules = modulesResult.data;
+  const quetes  = quetesResult.data;
+  const journal = journalResult.data;
 
   // ── Module visibility helpers ─────────────────────────────────────────────
   function isModuleVisible(id: string): boolean {
@@ -117,10 +110,7 @@ export default async function HomePage() {
           {/* 2 — Cale du navire */}
           <ResourcePanel scores={scores} />
 
-          {/* 3 — Semaine en cours */}
-          <WeekPanel etatVoyage={etat} kpis={kpis} scores={scoresHebdo} />
-
-          {/* 4 — Prochaine marée (countdown) */}
+          {/* 3 — Prochaine marée (countdown) */}
           <Panel title="Prochaine marée" icon="🌊">
             <Countdown targetDate={countdownTarget} />
           </Panel>
