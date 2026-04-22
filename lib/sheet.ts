@@ -80,18 +80,32 @@ async function fetchSheetRows(
     if (res.ok) {
       const text = await res.text();
       if (!isLoginPage(text) && text.includes(",")) {
-        const { data, errors } = Papa.parse<Record<string, string>>(text, {
-          header: true,
-          skipEmptyLines: true,
-          transformHeader: normalizeKey,
+        const { data: raw, errors } = Papa.parse<string[]>(text, {
+          header: false,
+          skipEmptyLines: false,
         });
         if (errors.length > 0) {
           console.warn(`[sheet] CSV parse warnings for "${sheetName}":`, errors.slice(0, 2));
         }
-        const rows = data.map(normalizeRow).filter((r) => Object.values(r).some((v) => v !== ""));
-        if (rows.length > 0) {
-          console.log(`[sheet] "${sheetName}" — ${rows.length} lignes via CSV`);
-          return { data: rows, strategy: "csv" };
+        // Find the first row with >= 3 non-empty cells — the real header row.
+        // Rows above it are decorative (title, description, section labels).
+        const headerRowIndex = raw.findIndex(
+          (row) => row.filter((cell) => cell.trim() !== "").length >= 3
+        );
+        if (headerRowIndex >= 0) {
+          const headerRow = raw[headerRowIndex].map(normalizeKey);
+          const rows: RawRow[] = raw
+            .slice(headerRowIndex + 1)
+            .filter((row) => row.some((cell) => cell.trim() !== ""))
+            .map((row) => {
+              const obj: RawRow = {};
+              headerRow.forEach((key, i) => { if (key) obj[key] = row[i] ?? ""; });
+              return obj;
+            });
+          if (rows.length > 0) {
+            console.log(`[sheet] "${sheetName}" — ${rows.length} lignes via CSV (header l.${headerRowIndex + 1})`);
+            return { data: rows, strategy: "csv" };
+          }
         }
       }
     }

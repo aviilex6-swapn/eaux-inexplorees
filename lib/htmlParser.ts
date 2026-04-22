@@ -80,15 +80,25 @@ export function parseHtmlTable(html: string): RawRow[] {
 
   if (rows.length < 2) return [];
 
-  // First row = headers (column names)
-  const headers = extractCells(rows[0]).map((h) =>
+  // Find the first row with >= 3 non-empty cells — the real header row.
+  // Rows above it are decorative (title, description, section labels).
+  let headerRowIndex = -1;
+  for (let i = 0; i < rows.length; i++) {
+    if (extractCells(rows[i]).filter((c) => c !== "").length >= 3) {
+      headerRowIndex = i;
+      break;
+    }
+  }
+  if (headerRowIndex === -1) return [];
+
+  const headers = extractCells(rows[headerRowIndex]).map((h) =>
     h.toLowerCase().trim().replace(/\s+/g, "_")
   );
 
   // Skip rows where all cells are empty (blank separator rows in Sheets)
   const dataRows: RawRow[] = [];
 
-  for (let i = 1; i < rows.length; i++) {
+  for (let i = headerRowIndex + 1; i < rows.length; i++) {
     const cells = extractCells(rows[i]);
     if (cells.every((c) => c === "")) continue;
 
