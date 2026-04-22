@@ -6,7 +6,7 @@ interface ShipPanelProps {
   crew: Membre[];
 }
 
-export function ShipPanel({ crew }: ShipPanelProps) {
+export function ShipPanel(_props: ShipPanelProps) {
   return (
     <div
       className="rounded-[10px] border p-4 backdrop-blur-md"
@@ -53,33 +53,6 @@ export function ShipPanel({ crew }: ShipPanelProps) {
         />
       </div>
 
-      {/* Crew grid — 5 columns */}
-      <div className="grid grid-cols-5 gap-2">
-        {crew.map((member) => (
-          <div
-            key={member.id}
-            className="text-center py-2 px-1 rounded-md border"
-            style={{
-              background: "rgba(255,255,255,0.03)",
-              borderColor: "rgba(255,255,255,0.05)",
-            }}
-          >
-            <div className="text-[20px] mb-1">{member.humeur}</div>
-            <div
-              className="text-[11px] font-bold text-cream-DEFAULT leading-tight"
-              style={{ fontFamily: "'Cinzel', serif" }}
-            >
-              {member.nom}
-            </div>
-            <div
-              className="text-[8px] text-cream-muted/50 leading-tight mt-0.5"
-              style={{ fontFamily: "'Press Start 2P', monospace" }}
-            >
-              {member.role.split(" ")[0]}
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }
