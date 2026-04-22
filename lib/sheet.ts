@@ -19,7 +19,7 @@ import { SHEET_URLS, REVALIDATE_SECONDS, toCsvUrl } from "./config";
 import { parseHtmlTable, isLoginPage } from "./htmlParser";
 import type {
   RawRow, SheetResult,
-  Membre, Module, KPI, ScoresCumules, EtatVoyage,
+  Membre, Module, KPI, ScoresCumules, ScoresBinome, EtatVoyage,
   Quete, Evenement, EntreeJournal, Badge,
   // Legacy aliases
   Island, Resources, Quest, SeaEvent, Ship,
@@ -294,6 +294,41 @@ export async function getScoresCumules(): Promise<ScoresCumules & { _strategy: s
     : { ...MOCK_DATA.scoresCumules };
 
   return { ...totals, _strategy: strategy, _error: error };
+}
+
+/**
+ * Scores par binôme — même onglet "Scores".
+ * Attend des lignes avec une colonne binôme/nom/equipe et les 4 ressources.
+ * Fallback vers 2 binômes fictifs si la feuille n'a pas ce format.
+ */
+export async function getScoresHebdo(): Promise<SheetResult<ScoresBinome>> {
+  const { data, strategy, error } = await fetchSheetRows(SHEET_URLS.scores, "scores");
+
+  const FALLBACK: ScoresBinome[] = [
+    { nom: "Binôme Vidéo", vent: 34, or: 22, bois: 36, boussole: 28, total: 120 },
+    { nom: "Binôme 360°",  vent: 34, or: 23, bois: 36, boussole: 27, total: 120 },
+  ];
+
+  const binomes: ScoresBinome[] = data
+    .map((r) => {
+      const nom = (r.binome ?? r.nom ?? r.equipe ?? r.groupe ?? r.team ?? "").trim();
+      if (!nom) return null;
+      const vent     = num(r.vent     ?? r.score_vent);
+      const or       = num(r.or       ?? r.score_or);
+      const bois     = num(r.bois     ?? r.score_bois);
+      const boussole = num(r.boussole ?? r.score_boussole);
+      return {
+        nom,
+        vent,
+        or,
+        bois,
+        boussole,
+        total: num(r.total ?? r.score_total) || vent + or + bois + boussole,
+      };
+    })
+    .filter((b): b is ScoresBinome => b !== null);
+
+  return { data: binomes.length > 0 ? binomes : FALLBACK, strategy, error };
 }
 
 /**

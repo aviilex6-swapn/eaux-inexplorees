@@ -80,6 +80,16 @@ export interface ScoresCumules {
   total: number;
 }
 
+// ─── Scores par binôme (onglet Scores, une ligne par binôme) ─────────────────
+export interface ScoresBinome {
+  nom: string;
+  vent: number;
+  or: number;
+  bois: number;
+  boussole: number;
+  total: number;
+}
+
 // ─── État du voyage (île en cours) ────────────────────────────────────────────
 export interface EtatVoyage {
   semaine: number;
