@@ -65,7 +65,7 @@ function extractRows(html: string): string[] {
  * Main parser: HTML string → array of plain objects.
  * Returns [] if no valid table is found.
  */
-export function parseHtmlTable(html: string): RawRow[] {
+export function parseHtmlTable(html: string, options: { stopAtEmptyRow?: boolean } = {}): RawRow[] {
   // Quick sanity check
   if (!html.includes("<table") || !html.includes("<td")) {
     return [];
@@ -100,7 +100,10 @@ export function parseHtmlTable(html: string): RawRow[] {
 
   for (let i = headerRowIndex + 1; i < rows.length; i++) {
     const cells = extractCells(rows[i]);
-    if (cells.every((c) => c === "")) continue;
+    if (cells.every((c) => c === "")) {
+      if (options.stopAtEmptyRow) break;
+      continue;
+    }
 
     const row: RawRow = {};
     headers.forEach((header, j) => {

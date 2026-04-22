@@ -69,6 +69,10 @@ export interface KPI {
   unite: string;
   tendance: "up" | "down" | "stable";
   responsable: string;
+  binome?: string;
+  objectif_lec?: number;
+  objectif_swapn?: number;
+  total_combine?: number;
 }
 
 // ─── Scores cumulés ───────────────────────────────────────────────────────────

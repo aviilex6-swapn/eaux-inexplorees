@@ -6,8 +6,6 @@ import type { KPI, ScoresBinome } from "@/lib/types";
 export const revalidate = 60;
 
 const RESOURCES = ["vent", "or", "bois", "boussole"] as const;
-const TENDANCE_ICON = { up: "↑", down: "↓", stable: "→" } as const;
-const TENDANCE_COLOR = { up: "#2D936C", down: "#E84838", stable: "#7EC8E3" } as const;
 
 function SectionLabel({ icon, label }: { icon: string; label: string }) {
   return (
@@ -43,13 +41,8 @@ export default async function SemainePage() {
     {} as Record<(typeof RESOURCES)[number], number>
   );
 
-  // Group KPIs by responsable
-  const kpiGroups: Record<string, KPI[]> = {};
-  for (const kpi of kpis) {
-    const key = kpi.responsable || "Équipe";
-    if (!kpiGroups[key]) kpiGroups[key] = [];
-    kpiGroups[key].push(kpi);
-  }
+  const kpisVideo = kpis.filter((k) => k.binome === "Binôme Vidéo");
+  const kpis360   = kpis.filter((k) => k.binome === "Binôme 360°");
 
   const dateMareeDisplay = etat.date_maree
     ? new Date(`${etat.date_maree}T09:00:00`).toLocaleDateString("fr-FR", {
@@ -220,92 +213,138 @@ export default async function SemainePage() {
           </section>
         )}
 
-        {/* ── 3. KPIs groupés par binôme responsable ───────────────────────── */}
-        {kpis.length > 0 && (
+        {/* ── 3. KPIs par binôme ───────────────────────────────────────────── */}
+        {(kpisVideo.length > 0 || kpis360.length > 0) && (
           <section className="mb-10">
             <SectionLabel icon="📊" label="KPIs de la semaine" />
-            <div className="space-y-4">
-              {Object.entries(kpiGroups).map(([responsable, groupKpis]) => (
+            <div className="space-y-5">
+
+              {/* Binôme Vidéo — colonnes LEC + Swapn + Total */}
+              {kpisVideo.length > 0 && (
                 <div
-                  key={responsable}
                   className="rounded-[10px] border p-5"
-                  style={{
-                    background: "rgba(0,0,0,0.4)",
-                    borderColor: "rgba(232,168,56,0.12)",
-                  }}
+                  style={{ background: "rgba(0,0,0,0.4)", borderColor: "rgba(232,168,56,0.12)" }}
                 >
-                  <div
-                    className="flex items-center gap-2 mb-4 pb-3"
-                    style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}
+                  <h3
+                    className="text-sm font-bold mb-4"
+                    style={{ fontFamily: "'Cinzel', serif", color: "#E8A838" }}
                   >
-                    <span
-                      className="text-[7px] px-2 py-1 rounded"
+                    📹 Binôme Vidéo
+                  </h3>
+                  {/* Header */}
+                  <div
+                    className="grid gap-3 mb-1 pb-2 text-right"
+                    style={{
+                      gridTemplateColumns: "1fr repeat(3, 5rem)",
+                      borderBottom: "1px solid rgba(255,255,255,0.06)",
+                    }}
+                  >
+                    {["KPI", "Obj. LEC", "Obj. Swapn", "Total"].map((h, i) => (
+                      <span
+                        key={h}
+                        className={`text-[6px] uppercase tracking-wider ${i === 0 ? "text-left" : ""}`}
+                        style={{ fontFamily: "'Press Start 2P', monospace", color: "rgba(240,228,200,0.35)" }}
+                      >
+                        {h}
+                      </span>
+                    ))}
+                  </div>
+                  {/* Rows */}
+                  {kpisVideo.map((kpi) => (
+                    <div
+                      key={kpi.id}
+                      className="grid gap-3 py-2 text-right"
                       style={{
-                        fontFamily: "'Press Start 2P', monospace",
-                        background: "rgba(232,168,56,0.12)",
-                        color: "#E8A838",
+                        gridTemplateColumns: "1fr repeat(3, 5rem)",
+                        borderBottom: "1px solid rgba(255,255,255,0.04)",
                       }}
                     >
-                      {responsable}
-                    </span>
-                  </div>
-
-                  <div className="space-y-4">
-                    {groupKpis.map((kpi) => {
-                      const pct =
-                        kpi.cible > 0
-                          ? Math.min(100, Math.round((kpi.valeur / kpi.cible) * 100))
-                          : 0;
-                      const barColor =
-                        pct >= 100 ? "#2D936C" : pct >= 70 ? "#E8A838" : "#7EC8E3";
-
-                      return (
-                        <div key={kpi.id}>
-                          <div className="flex items-center justify-between gap-3 mb-1.5">
-                            <div className="flex items-center gap-2 min-w-0">
-                              <span
-                                className="text-sm truncate"
-                                style={{ fontFamily: "'Cinzel', serif", color: "#f0e4c8" }}
-                              >
-                                {kpi.nom}
-                              </span>
-                              <span
-                                className="text-sm font-bold flex-shrink-0"
-                                style={{ color: TENDANCE_COLOR[kpi.tendance] }}
-                              >
-                                {TENDANCE_ICON[kpi.tendance]}
-                              </span>
-                            </div>
-                            <span
-                              className="text-[10px] tabular-nums flex-shrink-0"
-                              style={{ fontFamily: "'Cinzel', serif", color: barColor }}
-                            >
-                              {kpi.valeur}
-                              {kpi.unite}
-                              <span style={{ color: "rgba(240,228,200,0.3)" }}> / </span>
-                              {kpi.cible}
-                              {kpi.unite}
-                            </span>
-                          </div>
-                          <div
-                            className="h-2 rounded-full overflow-hidden"
-                            style={{ background: "rgba(255,255,255,0.06)" }}
-                          >
-                            <div
-                              className="h-full rounded-full transition-all duration-700"
-                              style={{
-                                width: `${pct}%`,
-                                backgroundColor: barColor,
-                                boxShadow: `0 0 6px ${barColor}60`,
-                              }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                      <span
+                        className="text-xs text-left truncate"
+                        style={{ fontFamily: "'Cinzel', serif", color: "#f0e4c8" }}
+                      >
+                        {kpi.nom}
+                      </span>
+                      <span
+                        className="text-xs tabular-nums"
+                        style={{ fontFamily: "'Cinzel', serif", color: "#7EC8E3" }}
+                      >
+                        {kpi.objectif_lec ?? "—"}
+                      </span>
+                      <span
+                        className="text-xs tabular-nums"
+                        style={{ fontFamily: "'Cinzel', serif", color: "#7EC8E3" }}
+                      >
+                        {kpi.objectif_swapn ?? "—"}
+                      </span>
+                      <span
+                        className="text-xs tabular-nums font-bold"
+                        style={{ fontFamily: "'Cinzel', serif", color: "#E8A838" }}
+                      >
+                        {kpi.total_combine ?? "—"}
+                      </span>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
+
+              {/* Binôme 360° — colonne LEC uniquement */}
+              {kpis360.length > 0 && (
+                <div
+                  className="rounded-[10px] border p-5"
+                  style={{ background: "rgba(0,0,0,0.4)", borderColor: "rgba(232,168,56,0.12)" }}
+                >
+                  <h3
+                    className="text-sm font-bold mb-4"
+                    style={{ fontFamily: "'Cinzel', serif", color: "#E8A838" }}
+                  >
+                    🔄 Binôme 360°
+                  </h3>
+                  {/* Header */}
+                  <div
+                    className="grid gap-3 mb-1 pb-2"
+                    style={{
+                      gridTemplateColumns: "1fr 5rem",
+                      borderBottom: "1px solid rgba(255,255,255,0.06)",
+                    }}
+                  >
+                    {["KPI", "Obj. LEC"].map((h, i) => (
+                      <span
+                        key={h}
+                        className={`text-[6px] uppercase tracking-wider ${i === 1 ? "text-right" : ""}`}
+                        style={{ fontFamily: "'Press Start 2P', monospace", color: "rgba(240,228,200,0.35)" }}
+                      >
+                        {h}
+                      </span>
+                    ))}
+                  </div>
+                  {/* Rows */}
+                  {kpis360.map((kpi) => (
+                    <div
+                      key={kpi.id}
+                      className="grid gap-3 py-2"
+                      style={{
+                        gridTemplateColumns: "1fr 5rem",
+                        borderBottom: "1px solid rgba(255,255,255,0.04)",
+                      }}
+                    >
+                      <span
+                        className="text-xs truncate"
+                        style={{ fontFamily: "'Cinzel', serif", color: "#f0e4c8" }}
+                      >
+                        {kpi.nom}
+                      </span>
+                      <span
+                        className="text-xs tabular-nums text-right"
+                        style={{ fontFamily: "'Cinzel', serif", color: "#7EC8E3" }}
+                      >
+                        {kpi.objectif_lec ?? "—"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
             </div>
           </section>
         )}

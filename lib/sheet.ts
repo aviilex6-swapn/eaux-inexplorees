@@ -66,7 +66,8 @@ function normalizeRow(row: Record<string, string>): RawRow {
  */
 async function fetchSheetRows(
   pubhtmlUrl: string,
-  sheetName: string
+  sheetName: string,
+  options: { stopAtEmptyRow?: boolean } = {}
 ): Promise<SheetResult<RawRow>> {
   if (!pubhtmlUrl) {
     return { data: [], strategy: "mock", error: `URL manquante pour "${sheetName}"` };
@@ -94,8 +95,16 @@ async function fetchSheetRows(
         );
         if (headerRowIndex >= 0) {
           const headerRow = raw[headerRowIndex].map(normalizeKey);
-          const rows: RawRow[] = raw
-            .slice(headerRowIndex + 1)
+          const rawDataRows = raw.slice(headerRowIndex + 1);
+          const trimmedRows = options.stopAtEmptyRow
+            ? (() => {
+                const firstEmpty = rawDataRows.findIndex(
+                  (row) => row.every((cell) => cell.trim() === "")
+                );
+                return firstEmpty >= 0 ? rawDataRows.slice(0, firstEmpty) : rawDataRows;
+              })()
+            : rawDataRows.filter((row) => row.some((cell) => cell.trim() !== ""));
+          const rows: RawRow[] = trimmedRows
             .filter((row) => row.some((cell) => cell.trim() !== ""))
             .map((row) => {
               const obj: RawRow = {};
@@ -121,7 +130,7 @@ async function fetchSheetRows(
     if (res.ok) {
       const html = await res.text();
       if (!isLoginPage(html)) {
-        const rows = parseHtmlTable(html).map(normalizeRow);
+        const rows = parseHtmlTable(html, { stopAtEmptyRow: options.stopAtEmptyRow }).map(normalizeRow);
         if (rows.length > 0) {
           console.log(`[sheet] "${sheetName}" — ${rows.length} lignes via HTML`);
           return { data: rows, strategy: "html" };
@@ -229,17 +238,20 @@ export async function getModules(): Promise<SheetResult<Module>> {
 
 /** KPIs — onglet "KPIs" */
 export async function getKpis(): Promise<SheetResult<KPI>> {
-  const { data, strategy, error } = await fetchSheetRows(SHEET_URLS.kpis, "kpis");
+  const { data, strategy, error } = await fetchSheetRows(SHEET_URLS.kpis, "kpis", { stopAtEmptyRow: true });
 
   const kpis: KPI[] = data.map((r) => {
     const valeur = num(r.valeur ?? r.score ?? r.resultat);
-    const cible  = num(r.cible  ?? r.objectif ?? r.target, 100);
+    const cible  = num(r.cible  ?? r.target, 100);
     const tendance = (() => {
       const t = (r.tendance ?? r.trend ?? "").toLowerCase();
       if (t.includes("up") || t.includes("hausse") || t.includes("progression")) return "up" as const;
       if (t.includes("down") || t.includes("baisse") || t.includes("regression")) return "down" as const;
       return "stable" as const;
     })();
+    const objectif_lec   = r.objectif_lec   !== undefined && r.objectif_lec   !== "" ? num(r.objectif_lec)   : undefined;
+    const objectif_swapn = r.objectif_swapn !== undefined && r.objectif_swapn !== "" ? num(r.objectif_swapn) : undefined;
+    const total_combine  = r.total_combine  !== undefined && r.total_combine  !== "" ? num(r.total_combine)  : undefined;
     return {
       id:          r.id          ?? r.nom?.toLowerCase().replace(/\s+/g, "_") ?? "",
       nom:         r.nom         ?? r.kpi ?? r.indicateur ?? "",
@@ -248,6 +260,10 @@ export async function getKpis(): Promise<SheetResult<KPI>> {
       unite:       r.unite       ?? r.unit ?? "",
       tendance,
       responsable: r.responsable ?? "",
+      binome:      (r.binome ?? "").trim() || undefined,
+      objectif_lec,
+      objectif_swapn,
+      total_combine,
     };
   });
 
