@@ -11,7 +11,7 @@ export const SHEET_URLS = {
   iles:      "https://docs.google.com/spreadsheets/d/e/2PACX-1vSOSG2VZ86RSLNCXpBpaOp8Q1jRDeNmw1yHytVlzVgQI7TqQi8CVdokaO8QlLmwUA/pubhtml?gid=885229995&single=true",
   quetes:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSOSG2VZ86RSLNCXpBpaOp8Q1jRDeNmw1yHytVlzVgQI7TqQi8CVdokaO8QlLmwUA/pubhtml?gid=1738919617&single=true",
   // evenements URL was truncated in the original — provide the corrected GID when known
-  evenements: "",
+  evenements: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSOSG2VZ86RSLNCXpBpaOp8Q1jRDeNmw1yHytVlzVgQI7TqQi8CVdokaO8QlLmwUA/pubhtml?gid=1620068135&single=true",
   journal:   "https://docs.google.com/spreadsheets/d/e/2PACX-1vSOSG2VZ86RSLNCXpBpaOp8Q1jRDeNmw1yHytVlzVgQI7TqQi8CVdokaO8QlLmwUA/pubhtml?gid=351092814&single=true",
   badges:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSOSG2VZ86RSLNCXpBpaOp8Q1jRDeNmw1yHytVlzVgQI7TqQi8CVdokaO8QlLmwUA/pubhtml?gid=1325752878&single=true",
 } as const;
