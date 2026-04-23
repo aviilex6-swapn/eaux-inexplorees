@@ -19,11 +19,7 @@ export function WeekPanel({ etatVoyage, kpis, scores }: WeekPanelProps) {
       ? Math.min(100, Math.round((etatVoyage.score_actuel / etatVoyage.seuil_passage) * 100))
       : 0;
 
-  // Per-resource max across all binômes — makes bars relative to each other
-  const resourceMax = RESOURCES.reduce(
-    (acc, key) => ({ ...acc, [key]: Math.max(...scores.map((s) => s[key]), 1) }),
-    {} as Record<(typeof RESOURCES)[number], number>
-  );
+
 
   return (
     <Panel title="Semaine en cours" icon="📅">
@@ -104,7 +100,7 @@ export function WeekPanel({ etatVoyage, kpis, scores }: WeekPanelProps) {
                 <div className="space-y-1.5">
                   {RESOURCES.map((key) => {
                     const meta = RESOURCE_META[key];
-                    const pct = Math.round((binome[key] / resourceMax[key]) * 100);
+                    const pct = Math.round((binome[key] / 20) * 100);
                     return (
                       <div key={key} className="flex items-center gap-1.5">
                         <span className="text-[10px] leading-none w-4 text-center">{meta.emoji}</span>

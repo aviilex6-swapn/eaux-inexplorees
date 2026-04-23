@@ -36,10 +36,7 @@ export default async function SemainePage() {
       ? Math.min(100, Math.round((etat.score_actuel / etat.seuil_passage) * 100))
       : 0;
 
-  const resourceMax = RESOURCES.reduce(
-    (acc, key) => ({ ...acc, [key]: Math.max(...scores.map((s) => s[key]), 1) }),
-    {} as Record<(typeof RESOURCES)[number], number>
-  );
+
 
   const kpisVideo = kpis.filter((k) => k.binome === "Binôme Vidéo");
   const kpis360   = kpis.filter((k) => k.binome === "Binôme 360°");
@@ -167,7 +164,7 @@ export default async function SemainePage() {
                   <div className="space-y-3">
                     {RESOURCES.map((key) => {
                       const meta = RESOURCE_META[key];
-                      const pct = Math.round((binome[key] / resourceMax[key]) * 100);
+                      const pct = Math.round((binome[key] / 20) * 100);
                       return (
                         <div key={key}>
                           <div className="flex items-center justify-between mb-1">
