@@ -37,12 +37,13 @@ const bool = (v: string | undefined): boolean => {
 
 const date = (v: string | undefined): string => (v ?? "").trim();
 
-/** Normalize a raw column key — handles accented chars, spaces, BOM */
+/** Normalize a raw column key — handles accented chars, spaces, BOM, emoji */
 function normalizeKey(k: string): string {
   return k
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")  // strip accents
     .replace(/^\uFEFF/, "")           // strip BOM
+    .replace(/[^\x00-\x7F]/g, "")    // strip non-ASCII (emoji, etc.)
     .trim()
     .toLowerCase()
     .replace(/[\s\-\.]+/g, "_");
